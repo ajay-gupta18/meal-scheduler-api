@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  profile   UserProfile?
+  plans     DietPlan[]
+  schedules MailSchedule[]
+}
+
+model UserProfile {
+  id        Int    @id @default(autoincrement())
+  userId    Int    @unique
+
+  height    Float
+  weight    Float
+  gender    String
+  age       Int
+  foodType  String     // veg / non-veg
+  goal      String     // muscle_gain / weight_loss / maintain
+
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model DietPlan {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+
+  title     String
+  source    String   // AI or MANUAL
+  createdAt DateTime @default(now())
+
+  user      User   @relation(fields: [userId], references: [id])
+  meals     Meal[]
+}
+
+model Meal {
+  id           Int      @id @default(autoincrement())
+  dietPlanId   Int
+
+  mealType     String   // breakfast / lunch / dinner
+  mealName     String
+  calories     Int
+  protein      Float
+  carbs        Float
+  fat          Float
+
+  scheduledAt  DateTime
+
+  plan         DietPlan @relation(fields: [dietPlanId], references: [id])
+  schedules    MailSchedule[]
+}
+
+model MailSchedule {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mealId    Int
+
+  sendTime  DateTime
+  status    String   // pending / sent / failed
+
+  user      User @relation(fields: [userId], references: [id])
+  meal      Meal @relation(fields: [mealId], references: [id])
+}
