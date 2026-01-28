@@ -4,7 +4,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../../utils/generateToken.js";
-import { hashInput } from "../../utils/password.js";
+import { hashInput } from "../../utils/common.js";
 
 export const registerUser = async (req, res) => {
   try {
